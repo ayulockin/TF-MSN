@@ -1,5 +1,3 @@
 from .ema import EMA
 
-__all__ = [
-    'EMA'
-]
+__all__ = ["EMA"]

@@ -1,12 +1,14 @@
 import tensorflow as tf
-from .utils import shape_list
+from transformers.tf_utils import shape_list
 
 ###############################################################################
 # Positional Embedding Utilities
 ###############################################################################
 
 
-def get_2d_sincos_pos_embed(embed_dim: int, grid_size: int, add_cls_token: bool = False) -> tf.Tensor:
+def get_2d_sincos_pos_embed(
+    embed_dim: int, grid_size: int, add_cls_token: bool = False
+) -> tf.Tensor:
     """
     Create 2D sin/cos positional embeddings.
 
@@ -26,8 +28,8 @@ def get_2d_sincos_pos_embed(embed_dim: int, grid_size: int, add_cls_token: bool 
     grid_w = tf.range(grid_size, dtype=tf.float32)
     grid = tf.meshgrid(grid_h, grid_w)
     grid = tf.stack(grid, axis=0)
-    grid = tf.reshape(grid, [2, 1, grid_size, grid_size]) # adding a new dimension
-    
+    grid = tf.reshape(grid, [2, 1, grid_size, grid_size])  # adding a new dimension
+
     # Get the 2d sin pos embedding
     pos_embed = get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
     if add_cls_token:
@@ -91,9 +93,11 @@ class ViTMAEPatchEmbeddings(tf.keras.layers.Layer):
         image_size = config.image_size
         patch_size = config.patch_size
         hidden_size = config.hidden_size
-        self.num_patches = (image_size[1] // patch_size[1]) * (image_size[0] // patch_size[0])
+        self.num_patches = (image_size[1] // patch_size[1]) * (
+            image_size[0] // patch_size[0]
+        )
         self.config = config
-        
+
         # Initialize the patchification and projection layer.
         self.projection = tf.keras.layers.Conv2D(
             filters=hidden_size,
@@ -106,7 +110,9 @@ class ViTMAEPatchEmbeddings(tf.keras.layers.Layer):
         )
         # Initialize the layer that reshapes a collection of pathces
         # to the temporal dimension.
-        self.flatten = tf.keras.layers.Reshape(target_shape=(self.num_patches, hidden_size))
+        self.flatten = tf.keras.layers.Reshape(
+            target_shape=(self.num_patches, hidden_size)
+        )
 
     def call(self, pixel_values: tf.Tensor, training: bool = False) -> tf.Tensor:
         # Patchify and project the pixel_values
@@ -121,18 +127,23 @@ class ViTMAEEmbeddings(tf.keras.layers.Layer):
     """
     Construct the CLS token, position and patch embeddings.
     """
+
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
         self.patch_embeddings = ViTMAEPatchEmbeddings(config, name="patch_embeddings")
-        self.num_patches = self.patch_embeddings.num_patches # num_patches are calculated in the patch_embedding layer
+        self.num_patches = (
+            self.patch_embeddings.num_patches
+        )  # num_patches are calculated in the patch_embedding layer
 
         self.config = config
 
     def build(self, input_shape: tf.TensorShape):
         self.cls_token = self.add_weight(
             shape=(1, 1, self.config.hidden_size),
-            initializer=tf.random_normal_initializer(stddev=self.config.initializer_range),
+            initializer=tf.random_normal_initializer(
+                stddev=self.config.initializer_range
+            ),
             trainable=True,
             name="cls_token",
         )
@@ -168,8 +179,7 @@ class ViTMAEEmbeddings(tf.keras.layers.Layer):
 
         # Build a uniform distribution
         noise = tf.random.uniform(
-            shape=(batch_size, seq_length),
-            minval=0.0, maxval=1.0
+            shape=(batch_size, seq_length), minval=0.0, maxval=1.0
         )
 
         # `ids_shuffle` are the indicies that will sort the uniform distribution
@@ -214,7 +224,9 @@ class ViTMAEEmbeddings(tf.keras.layers.Layer):
         embeddings = embeddings + self.position_embeddings[:, 1:, :]
 
         # masking: length -> length * config.mask_ratio
-        embeddings, mask, ids_restore = self.random_masking(embeddings, )
+        embeddings, mask, ids_restore = self.random_masking(
+            embeddings,
+        )
 
         # append cls token
         cls_token = self.cls_token + self.position_embeddings[:, :1, :]
