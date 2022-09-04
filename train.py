@@ -18,6 +18,7 @@ from classifier.callbacks import *
 
 # Modules
 from msn.data import download_dataset, preprocess_dataframe
+from msn.data import GetMSNDataloader
 from msn.model import get_model
 
 # Config
@@ -46,10 +47,14 @@ def main(_):
     train_df = download_dataset("train", "labelled-dataset")
 
     # Preprocess the DataFrames
-    train_paths, train_labels = preprocess_dataframe(train_df)
-    print(train_paths[:5], train_labels[:5])
+    train_paths, _ = preprocess_dataframe(train_df)
+    print(train_paths[:5])
 
     # Get dataloader
+    dataloader = GetMSNDataloader(config).get_dataloader(train_paths)
+    # TODO: REMOVE
+    samples = next(iter(dataloader))
+    print(samples[0].shape, samples[1].shape, samples[2].shape, samples[3].shape, samples[4].shape)
 
     # Get model
     tf.keras.backend.clear_session()
@@ -58,22 +63,6 @@ def main(_):
     pixel_values = tf.random.normal((2, 224, 224, 3))
     model(pixel_values=pixel_values)
     print(model.summary())
-
-    # # Compile the model
-    # model.compile(
-    #     optimizer = config.train_config.optimizer,
-    #     loss = config.train_config.loss,
-    #     metrics = config.train_config.metrics
-    # )
-
-    # # Train the model
-    # model.fit(
-    #     trainloader,
-    #     validation_data = validloader,
-    #     epochs = config.train_config.epochs,
-    #     callbacks=CALLBACKS
-    # )
-
 
 if __name__ == "__main__":
     app.run(main)

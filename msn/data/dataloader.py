@@ -2,21 +2,22 @@ import numpy as np
 import tensorflow as tf
 from functools import partial
 
+from .augmentations import custom_augment
+
 AUTOTUNE = tf.data.AUTOTUNE
 
 
-class GetMSNDataloader():
+class GetMSNDataloader:
     def __init__(self, args):
-        self.args = args
+        self.args = args.dataset_config
 
     def get_dataloader(self, image_paths):
         # Load the images
         img_file_loader = tf.data.Dataset.from_tensor_slices((image_paths))
-        
+
         # Preprocess images
-        dataloader = ( 
-            img_file_loader
-            .map(self.preprocess_image, num_parallel_calls=AUTOTUNE)
+        dataloader = img_file_loader.map(
+            self.preprocess_image, num_parallel_calls=AUTOTUNE
         )
 
         # Get options
@@ -24,11 +25,8 @@ class GetMSNDataloader():
             options = self.get_options()
 
         # Get multi view dataloaders
-        loaders = multiview_dataloaders(
-            dataloader,
-            self.args.size_crops,
-            self.args.num_crops,
-            options = options
+        loaders = self.multiview_dataloaders(
+            dataloader, self.args.size_crops, self.args.num_crops, options=options
         )
 
         # Zip the multi view dataloaders together
@@ -47,7 +45,7 @@ class GetMSNDataloader():
     def preprocess_image(self, path):
         # Parse Image
         image = tf.io.read_file(path)
-        image = decode_image(image)
+        image = self.decode_image(image)
 
         return image
 
@@ -59,27 +57,22 @@ class GetMSNDataloader():
 
         return img
 
-    def multiview_dataloaders(
-        self,
-        dataloader,
-        size_crops,
-        num_crops,
-        options=None
-    ):
+    def multiview_dataloaders(self, dataloader, size_crops, num_crops, options=None):
         loaders = tuple()
         for i, num_crop in enumerate(num_crops):
-        if size_crops[i] == 224:
-            mode="random"
-        else:
-            mode="focal"
-        for _ in range(num_crop):
-            loader = (
-                dataset
-                .map(lambda x: custom_augment(x, mode=mode), num_parallel_calls=AUTOTUNE)
-            )
-            if options is not None:
-                loader = loader.with_options(options)
-            loaders += (loader, )
+            if size_crops[i] == 224:
+                mode = "random"
+            else:
+                mode = "focal"
+            for _ in range(num_crop):
+                loader = (
+                    dataloader
+                    # TODO: Add augmentations using KerasCV
+                    .map(lambda x: custom_augment(x, mode=mode), num_parallel_calls=AUTOTUNE)
+                )
+                if options is not None:
+                    loader = loader.with_options(options)
+                loaders += (loader,)
 
         return loaders
 
