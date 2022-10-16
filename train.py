@@ -11,11 +11,6 @@ import wandb
 from wandb.keras import WandbCallback
 import tensorflow as tf
 
-from classifier.data import download_and_get_dataset
-from classifier.data import GetDataloader
-from classifier.model import get_model
-from classifier.callbacks import *
-
 # Modules
 from msn.data import download_dataset, preprocess_dataframe
 from msn.data import GetMSNDataloader
