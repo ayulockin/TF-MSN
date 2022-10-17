@@ -1,6 +1,7 @@
+from functools import partial
+
 import numpy as np
 import tensorflow as tf
-from functools import partial
 
 from .augmentations import custom_augment
 
@@ -34,8 +35,7 @@ class GetMSNDataloader:
 
         # Final trainloader
         loaders_zipped = (
-            loaders_zipped
-            .shuffle(self.args.shuffle_buffer)
+            loaders_zipped.shuffle(self.args.shuffle_buffer)
             .batch(self.args.batch_size)
             .prefetch(AUTOTUNE)
         )
@@ -68,7 +68,10 @@ class GetMSNDataloader:
                 loader = (
                     dataloader
                     # TODO: Add augmentations using KerasCV
-                    .map(lambda x: custom_augment(x, mode=mode), num_parallel_calls=AUTOTUNE)
+                    .map(
+                        lambda x: custom_augment(x, mode=mode),
+                        num_parallel_calls=AUTOTUNE,
+                    )
                 )
                 if options is not None:
                     loader = loader.with_options(options)

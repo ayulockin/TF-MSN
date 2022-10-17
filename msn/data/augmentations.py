@@ -1,8 +1,8 @@
 # TODO (aritra): Replace this with KerasCV based augmentations
 
-import tensorflow as tf
 import random
 
+import tensorflow as tf
 
 # Reference: https://github.com/ayulockin/SwAV-TF/blob/master/utils/multicrop_dataset.py
 

@@ -1,13 +1,12 @@
 import math
-from typing import Tuple, Union, Optional
+from typing import Optional, Tuple, Union
 
-import tensorflow as tf
 import numpy as np
-
+import tensorflow as tf
 from transformers.activations_tf import get_tf_activation
 from transformers.file_utils import ModelOutput
 from transformers.modeling_tf_outputs import TFBaseModelOutput
-from transformers.modeling_tf_utils import get_initializer, TFModelInputType
+from transformers.modeling_tf_utils import TFModelInputType, get_initializer
 from transformers.tf_utils import shape_list, stable_softmax
 
 from .embeddings import ViTMAEEmbeddings
