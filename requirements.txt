@@ -1,3 +1,6 @@
-tensorflow
-transformers
-ml-collections
+tensorflow==2.10.0
+transformers==4.23.1
+ml-collections==0.1.1
+black==22.10.0
+isort==5.10.1
+wandb==0.13.4

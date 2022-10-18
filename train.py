@@ -3,17 +3,14 @@ import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import numpy as np
 import pandas as pd
-from absl import app
-from absl import flags
-from ml_collections.config_flags import config_flags
-
-import wandb
-from wandb.keras import WandbCallback
 import tensorflow as tf
+import wandb
+from absl import app, flags
+from ml_collections.config_flags import config_flags
+from wandb.keras import WandbCallback
 
 # Modules
-from msn.data import download_dataset, preprocess_dataframe
-from msn.data import GetMSNDataloader
+from msn.data import GetMSNDataloader, download_dataset, preprocess_dataframe
 from msn.model import get_model
 
 # Config
@@ -49,7 +46,13 @@ def main(_):
     dataloader = GetMSNDataloader(config).get_dataloader(train_paths)
     # TODO: REMOVE
     samples = next(iter(dataloader))
-    print(samples[0].shape, samples[1].shape, samples[2].shape, samples[3].shape, samples[4].shape)
+    print(
+        samples[0].shape,
+        samples[1].shape,
+        samples[2].shape,
+        samples[3].shape,
+        samples[4].shape,
+    )
 
     # Get model
     tf.keras.backend.clear_session()
@@ -58,6 +61,7 @@ def main(_):
     pixel_values = tf.random.normal((2, 224, 224, 3))
     model(pixel_values=pixel_values)
     print(model.summary())
+
 
 if __name__ == "__main__":
     app.run(main)
