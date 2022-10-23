@@ -61,6 +61,7 @@ def main(_):
     pixel_values = tf.random.normal((2, 224, 224, 3))
     model(pixel_values=pixel_values)
     print(model.summary())
+    # TODO: Add model cloning
 
 
 if __name__ == "__main__":
