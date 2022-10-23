@@ -13,6 +13,7 @@ from wandb.keras import WandbCallback
 # Modules
 from msn.data import GetMSNDataloader, download_dataset, preprocess_dataframe
 from msn.model import PrototypeLayer, get_model
+from msn.utils import build_and_clone_model
 
 # Config
 FLAGS = flags.FLAGS
@@ -58,41 +59,40 @@ def main(_):
     # of the parameters of the anchor model.
     tf.keras.backend.clear_session()
 
-    # Create the anchor model and save the initial weights.
+    # Create the anchor and target model.
     anchor_model = get_model(config)
-    pixel_values = tf.random.normal((2, 224, 224, 3))
-    anchor_model(pixel_values=pixel_values)
-    anchor_model.save_weights("init_model/anchor_model")
-
-    # Create the target model and use the initial anchor weights.
     target_model = get_model(config)
-    target_model.load_weights("init_model/anchor_model")
-
-    # TODO: REMOVE
-    pixel_values = tf.random.normal((2, 224, 224, 3))
-    anchor_output = anchor_model(pixel_values=pixel_values, return_dict=True)
-    target_output = target_model(pixel_values=pixel_values, return_dict=True)
-
-    print(
-        anchor_output["cls_token_output"].shape, target_output["cls_token_output"].shape
+    encoder_model, target_model = build_and_clone_model(
+        anchor_model, target_model, config
     )
 
-    print(anchor_model.summary())
-    print(target_model.summary())
+    # # TODO: REMOVE
+    # pixel_values = tf.random.normal((8, 224, 224, 3))
+    # anchor_output = anchor_model(
+    #     pixel_values=pixel_values, return_dict=True, training=True
+    # )
+    # target_output = target_model(
+    #     pixel_values=pixel_values, return_dict=True, training=True
+    # )
 
-    # Initialize a prototype model
-    prototype_layer = PrototypeLayer(config)
+    # print(
+    #     anchor_output["cls_token_output"].shape, target_output["cls_token_output"].shape
+    # )
 
-    prototype_anchor_out = prototype_layer(
-        anchor_output["cls_token_output"], tau=config.model_config.anchor_tau
-    )
-    prototype_target_out = prototype_layer(
-        target_output["cls_token_output"], tau=config.model_config.target_tau
-    )
+    # print(anchor_model.summary())
+    # print(target_model.summary())
 
-    print(prototype_anchor_out.shape, prototype_target_out.shape)
+    # # Initialize a prototype model
+    # prototype_layer = PrototypeLayer(config)
 
+    # prototype_anchor_out = prototype_layer(
+    #     anchor_output["cls_token_output"], tau=config.model_config.anchor_tau
+    # )
+    # prototype_target_out = prototype_layer(
+    #     target_output["cls_token_output"], tau=config.model_config.target_tau
+    # )
 
+    # print(prototype_anchor_out.shape, prototype_target_out.shape)
 
 
 if __name__ == "__main__":
