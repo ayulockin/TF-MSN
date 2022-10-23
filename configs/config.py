@@ -1,4 +1,5 @@
 import os
+
 import ml_collections
 from ml_collections import config_dict
 
@@ -50,6 +51,11 @@ def get_model_configs() -> ml_collections.ConfigDict:
     configs.decoder_intermediate_size = 2048
     configs.mask_ratio = 0.75
     configs.norm_pix_loss = False
+
+    # Projection configs
+    configs.num_prototypes = 10
+    configs.anchor_tau = 0.01
+    configs.target_tau = 0.1
 
     return configs
 

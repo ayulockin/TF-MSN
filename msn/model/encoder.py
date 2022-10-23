@@ -1,13 +1,12 @@
 import math
-from typing import Tuple, Union, Optional
+from typing import Optional, Tuple, Union
 
-import tensorflow as tf
 import numpy as np
-
+import tensorflow as tf
 from transformers.activations_tf import get_tf_activation
 from transformers.file_utils import ModelOutput
 from transformers.modeling_tf_outputs import TFBaseModelOutput
-from transformers.modeling_tf_utils import get_initializer, TFModelInputType
+from transformers.modeling_tf_utils import TFModelInputType, get_initializer
 from transformers.tf_utils import shape_list, stable_softmax
 
 from .embeddings import ViTMAEEmbeddings
@@ -21,6 +20,8 @@ class TFViTMAEModelOutput(ModelOutput):
     """
     Class for TFViTMAEModel's outputs, with potential hidden states and attentions.
     Args:
+        cls_token_output (`tf.Tensor` of shape `(batch_size, hidden_size)`):
+            This is the output from the CLS Token.
         last_hidden_state (`tf.Tensor` of shape `(batch_size, sequence_length, hidden_size)`):
             Sequence of hidden-states at the output of the last layer of the model.
         mask (`tf.Tensor` of shape `(batch_size, sequence_length)`):
@@ -37,6 +38,7 @@ class TFViTMAEModelOutput(ModelOutput):
             the self-attention heads.
     """
 
+    cls_token_output: tf.Tensor = None
     last_hidden_state: tf.Tensor = None
     mask: tf.Tensor = None
     ids_restore: tf.Tensor = None
@@ -403,7 +405,6 @@ class TFViTMAEMainModel(tf.keras.Model):
             raise NotImplementedError
         else:
             head_mask = [None] * self.config.num_hidden_layers
-
         encoder_outputs = self.encoder(
             embedding_output,
             head_mask=head_mask,
@@ -420,6 +421,7 @@ class TFViTMAEMainModel(tf.keras.Model):
             return (sequence_output, mask, ids_restore) + encoder_outputs[1:]
 
         return TFViTMAEModelOutput(
+            cls_token_output=sequence_output[:, 0, :],
             last_hidden_state=sequence_output,
             mask=mask,
             ids_restore=ids_restore,

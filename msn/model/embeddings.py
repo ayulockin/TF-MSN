@@ -93,8 +93,8 @@ class ViTMAEPatchEmbeddings(tf.keras.layers.Layer):
         image_size = config.image_size
         patch_size = config.patch_size
         hidden_size = config.hidden_size
-        self.num_patches = (image_size[1] // patch_size[1]) * (
-            image_size[0] // patch_size[0]
+        self.num_patches = (image_size[0] // patch_size[0]) * (
+            image_size[1] // patch_size[1]
         )
         self.config = config
 
@@ -115,11 +115,14 @@ class ViTMAEPatchEmbeddings(tf.keras.layers.Layer):
         )
 
     def call(self, pixel_values: tf.Tensor, training: bool = False) -> tf.Tensor:
+        # pixel_values.shape = (batch_size, height, width, num_channels)
         # Patchify and project the pixel_values
         projection = self.projection(pixel_values)
+        # projection.shape = (batch_size, image_size[0] // patch_size[0], image_size[1] // patch_size[1], hidden_size)
 
         # Change the 2D spatial dimensions to a single temporal dimension.
         x = self.flatten(projection)
+        # x.shape = (batch_size, num_patches, hidden_size)
         return x
 
 
@@ -218,6 +221,7 @@ class ViTMAEEmbeddings(tf.keras.layers.Layer):
         return sequence_unmasked, mask, ids_restore
 
     def call(self, pixel_values: tf.Tensor, noise: tf.Tensor = None) -> tf.Tensor:
+        # embeddings.shape = (batch_size, num_patches, hidden_size)
         embeddings = self.patch_embeddings(pixel_values)
 
         # add position embeddings w/o cls token
