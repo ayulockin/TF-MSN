@@ -1,7 +1,9 @@
 from functools import partial
+from typing import List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
+from ml_collections import ConfigDict
 
 from .augmentations import custom_augment
 
@@ -9,12 +11,12 @@ AUTOTUNE = tf.data.AUTOTUNE
 
 
 class GetMSNDataloader:
-    def __init__(self, args):
+    def __init__(self, args: ConfigDict):
         self.args = args.dataset_config
 
-    def get_dataloader(self, image_paths):
+    def get_dataloader(self, image_paths: List[str]) -> tf.data.Dataset:
         # Load the images
-        img_file_loader = tf.data.Dataset.from_tensor_slices((image_paths))
+        img_file_loader = tf.data.Dataset.from_tensor_slices(image_paths)
 
         # Preprocess images
         dataloader = img_file_loader.map(
@@ -26,6 +28,7 @@ class GetMSNDataloader:
             options = self.get_options()
 
         # Get multi view dataloaders
+        # You get a tuple of dataloaders
         loaders = self.multiview_dataloaders(
             dataloader, self.args.size_crops, self.args.num_crops, options=options
         )
@@ -42,22 +45,25 @@ class GetMSNDataloader:
 
         return loaders_zipped
 
-    def preprocess_image(self, path):
+    def preprocess_image(self, path: str) -> tf.Tensor:
         # Parse Image
         image = tf.io.read_file(path)
-        image = self.decode_image(image)
+        # Decode
+        image = tf.image.decode_jpeg(image, channels=3)
+        # Normalize image
+        image = tf.image.convert_image_dtype(
+            image, dtype=tf.float32
+        )  # mapped to [0, 1]
 
         return image
 
-    def decode_image(self, img):
-        # Decode
-        img = tf.image.decode_jpeg(img, channels=3)
-        # Normalize image
-        img = tf.image.convert_image_dtype(img, dtype=tf.float32)
-
-        return img
-
-    def multiview_dataloaders(self, dataloader, size_crops, num_crops, options=None):
+    def multiview_dataloaders(
+        self,
+        dataloader: tf.data.Dataset,
+        size_crops: List[int],
+        num_crops: List[int],
+        options=None,
+    ) -> Tuple[tf.data.Dataset]:
         loaders = tuple()
         for i, num_crop in enumerate(num_crops):
             if size_crops[i] == 224:
