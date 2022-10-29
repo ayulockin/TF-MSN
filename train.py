@@ -24,7 +24,6 @@ flags.DEFINE_bool("wandb", False, "MLOps pipeline for our classifier.")
 def main(_):
     # Get configs from the config file.
     config = CONFIG.value
-    print(config)
 
     CALLBACKS = []
     # Initialize a Weights and Biases run.
@@ -67,20 +66,21 @@ def main(_):
     )
 
     # # TODO: REMOVE
-    # pixel_values = tf.random.normal((8, 224, 224, 3))
-    # anchor_output = anchor_model(
-    #     pixel_values=pixel_values, return_dict=True, training=True
-    # )
-    # target_output = target_model(
-    #     pixel_values=pixel_values, return_dict=True, training=True
-    # )
+    pixel_values = samples[0]
+    anchor_output = anchor_model(
+        pixel_values=pixel_values, return_dict=True, training=True
+    )
+    target_output = target_model(
+        pixel_values=pixel_values, return_dict=True, training=True
+    )
 
-    # print(
-    #     anchor_output["cls_token_output"].shape, target_output["cls_token_output"].shape
-    # )
+    print(
+        anchor_output["cls_token_output"].shape, target_output["cls_token_output"].shape
+    )
 
-    # print(anchor_model.summary())
-    # print(target_model.summary())
+
+    print(anchor_model.summary())
+    print(target_model.summary())
 
     # # Initialize a prototype model
     # prototype_layer = PrototypeLayer(config)

@@ -26,7 +26,7 @@ def build_and_clone_model(encoder, target, args):
     """
     args = args.model_config
     input_shape = (
-        8,
+        1,
         args.model_img_height,
         args.model_img_width,
         args.model_img_channels,

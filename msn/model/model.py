@@ -22,10 +22,6 @@ def get_vit_mae_configs(args):
         patch_size=(args.patch_size, args.patch_size),
         num_channels=args.model_img_channels,
         qkv_bias=args.qkv_bias,
-        decoder_num_attention_heads=args.decoder_num_attention_heads,
-        decoder_hidden_size=args.decoder_hidden_size,
-        decoder_num_hidden_layers=args.decoder_num_hidden_layers,
-        decoder_intermediate_size=args.decoder_intermediate_size,
         mask_ratio=args.mask_ratio,
         norm_pix_loss=args.norm_pix_loss,
     )
