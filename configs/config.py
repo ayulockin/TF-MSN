@@ -49,6 +49,9 @@ def get_model_configs() -> ml_collections.ConfigDict:
     configs.norm_pix_loss = False
 
     # Projection configs
+    configs.proj_hidden_size = 1024
+    configs.proj_output_dim = 256
+    configs.proj_use_bn = True
     configs.num_prototypes = 10
     configs.anchor_tau = 0.01
     configs.target_tau = 0.1

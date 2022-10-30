@@ -1,12 +1,14 @@
 import tensorflow as tf
+from tensorflow.keras import models
+
 from transformers.models.vit_mae.configuration_vit_mae import ViTMAEConfig
 
 # Module
 from .encoder import TFViTMAEMainModel
+from .projection import get_projection
 
 
 def get_vit_mae_configs(args):
-    args = args.model_config
     custom_config = ViTMAEConfig(
         hidden_size=args.hidden_size,
         num_hidden_layers=args.num_hidden_layers,
@@ -30,7 +32,11 @@ def get_vit_mae_configs(args):
 
 
 def get_model(args):
-    custom_config = get_vit_mae_configs(args)
-    model = TFViTMAEMainModel(config=custom_config)
+    # Get the config at the `model_config` level.
+    args = args.model_config
 
-    return model
+    custom_config = get_vit_mae_configs(args)
+    encoder = TFViTMAEMainModel(config=custom_config)
+    projection_head = get_projection(args)
+
+    return models.Sequential([encoder, projection_head])
