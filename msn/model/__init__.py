@@ -1,4 +1,3 @@
-from .model import get_model
-from .prototypes import PrototypeLayer
+from .model import TFMAEViTModelWithProjection
 
-__all__ = ["get_model", "PrototypeLayer"]
+__all__ = ["TFMAEViTModelWithProjection"]
