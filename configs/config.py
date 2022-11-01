@@ -45,14 +45,13 @@ def get_model_configs() -> ml_collections.ConfigDict:
     configs.patch_size = 16
     configs.num_channels = 3
     configs.qkv_bias = True
-    configs.decoder_num_attention_heads = 16
-    configs.decoder_hidden_size = 512
-    configs.decoder_num_hidden_layers = 8
-    configs.decoder_intermediate_size = 2048
     configs.mask_ratio = 0.75
     configs.norm_pix_loss = False
 
     # Projection configs
+    configs.proj_hidden_size = 1024
+    configs.proj_output_dim = 256
+    configs.proj_use_bn = True
     configs.num_prototypes = 10
     configs.anchor_tau = 0.01
     configs.target_tau = 0.1
